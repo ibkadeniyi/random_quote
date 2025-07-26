@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Quote Generator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">
+                <i class="fas fa-quote-left"></i>
+                Random Quote Generator
+            </h1>
+            <p class="subtitle">Discover inspiring quotes from great minds</p>
+        </header>
+
+        <main class="main-content">
+            <div class="quote-card">
+                <div class="quote-content">
+                    <i class="fas fa-quote-left quote-icon"></i>
+                    <p id="quote-text" class="quote-text">
+                        Click the button below to generate a random quote
+                    </p>
+                    <i class="fas fa-quote-right quote-icon"></i>
+                </div>
+                
+                <div class="quote-author" id="quote-author">
+                    <span class="author-label">Author</span>
+                </div>
+
+                <div class="quote-actions">
+                    <button id="generate-btn" class="btn btn-primary">
+                        <i class="fas fa-random"></i>
+                        Generate Quote
+                    </button>
+                    
+                    <button id="copy-btn" class="btn btn-secondary" title="Copy quote">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                    
+                    <button id="share-btn" class="btn btn-secondary" title="Share quote">
+                        <i class="fas fa-share-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="features">
+                <div class="feature-card">
+                    <i class="fas fa-heart"></i>
+                    <h3>Inspirational</h3>
+                    <p>Curated quotes from world-renowned thinkers and leaders</p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-mobile-alt"></i>
+                    <h3>Responsive</h3>
+                    <p>Beautiful design that works on all devices</p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-share"></i>
+                    <h3>Shareable</h3>
+                    <p>Easy to copy and share your favorite quotes</p>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2024 Random Quote Generator. Built with ❤️ by Ibukun Adeniyi</p>
+        </footer>
+    </div>
+
+    <div id="notification" class="notification">
+        <span id="notification-text"></span>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 

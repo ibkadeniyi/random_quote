@@ -20,6 +20,7 @@ A simple JavaScript project that generates random quotes.
 
 ### Running the Project
 
+#### CLI Version (Terminal)
 ```bash
 npm start
 ```
@@ -29,11 +30,28 @@ Or run directly with Node.js:
 node index.js
 ```
 
+#### Web Version (Browser)
+```bash
+npm run web
+```
+
+Or run directly with Node.js:
+```bash
+node server.js
+```
+
+Then open your browser and visit: `http://localhost:3000`
+
 ## Project Structure
 
 ```
 random_quote/
-├── index.js          # Main application file
+├── index.js          # Main application file (CLI version)
+├── server.js         # Web server for frontend
+├── public/           # Frontend files
+│   ├── index.html    # Main HTML page
+│   ├── styles.css    # CSS styles
+│   └── script.js     # Frontend JavaScript
 ├── package.json      # Project configuration and dependencies
 ├── .gitignore        # Git ignore rules
 └── README.md         # Project documentation
@@ -41,9 +59,14 @@ random_quote/
 
 ## Features
 
-- Generate random quotes
-- Simple and clean code structure
-- Easy to extend and modify
+- **CLI Version**: Generate random quotes in the terminal
+- **Web Version**: Beautiful, responsive web interface
+- **Modern Design**: Clean, modern UI with smooth animations
+- **Interactive**: Copy quotes to clipboard, share functionality
+- **Responsive**: Works perfectly on desktop, tablet, and mobile
+- **Keyboard Shortcuts**: Press spacebar to generate new quotes
+- **20+ Inspirational Quotes**: Curated collection from great minds
+- **Easy to Extend**: Simple structure to add more quotes or features
 
 ## Contributing
 

@@ -4,6 +4,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "web": "node server.js",
+    "dev": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
