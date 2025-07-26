@@ -1,69 +1,202 @@
-const http = require('http');
-const fs = require('fs');
+const express = require('express');
 const path = require('path');
+require('dotenv').config({ path: './config.env' });
 
+const app = express();
 const PORT = process.env.PORT || 3000;
 
-// MIME types for different file extensions
-const mimeTypes = {
-    '.html': 'text/html',
-    '.css': 'text/css',
-    '.js': 'text/javascript',
-    '.json': 'application/json',
-    '.png': 'image/png',
-    '.jpg': 'image/jpeg',
-    '.gif': 'image/gif',
-    '.svg': 'image/svg+xml',
-    '.ico': 'image/x-icon'
-};
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Create HTTP server
-const server = http.createServer((req, res) => {
-    let filePath = '';
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Fallback API routes (no MongoDB required)
+app.get('/api/quotes/random', (req, res) => {
+    const fallbackQuotes = [
+        {
+            text: "Don't stop 'til you get enough",
+            author: "Michael Jackson",
+            song: "Don't Stop 'Til You Get Enough",
+            album: "Off the Wall",
+            year: 1979
+        },
+        {
+            text: "Billie Jean is not my lover",
+            author: "Michael Jackson",
+            song: "Billie Jean",
+            album: "Thriller",
+            year: 1982
+        },
+        {
+            text: "I'm starting with the man in the mirror",
+            author: "Michael Jackson",
+            song: "Man in the Mirror",
+            album: "Bad",
+            year: 1987
+        },
+        {
+            text: "You are not alone, I am here with you",
+            author: "Michael Jackson",
+            song: "You Are Not Alone",
+            album: "HIStory: Past, Present and Future, Book I",
+            year: 1995
+        },
+        {
+            text: "We are the world, we are the children",
+            author: "Michael Jackson",
+            song: "We Are the World",
+            album: "We Are the World",
+            year: 1985
+        },
+        {
+            text: "Beat it, beat it, beat it, beat it",
+            author: "Michael Jackson",
+            song: "Beat It",
+            album: "Thriller",
+            year: 1982
+        },
+        {
+            text: "The way you make me feel",
+            author: "Michael Jackson",
+            song: "The Way You Make Me Feel",
+            album: "Bad",
+            year: 1987
+        },
+        {
+            text: "Smooth criminal, smooth criminal",
+            author: "Michael Jackson",
+            song: "Smooth Criminal",
+            album: "Bad",
+            year: 1987
+        },
+        {
+            text: "Black or white, it don't matter to me",
+            author: "Michael Jackson",
+            song: "Black or White",
+            album: "Dangerous",
+            year: 1991
+        },
+        {
+            text: "Heal the world, make it a better place",
+            author: "Michael Jackson",
+            song: "Heal the World",
+            album: "Dangerous",
+            year: 1991
+        }
+    ];
     
-    // Handle different routes
-    if (req.url === '/' || req.url === '/index.html') {
-        filePath = path.join(__dirname, 'public', 'index.html');
-    } else {
-        filePath = path.join(__dirname, 'public', req.url);
-    }
+    const randomQuote = fallbackQuotes[Math.floor(Math.random() * fallbackQuotes.length)];
+    res.json({
+        success: true,
+        data: randomQuote
+    });
+});
+
+app.get('/api/quotes', (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
     
-    // Get file extension
-    const extname = path.extname(filePath).toLowerCase();
-    const contentType = mimeTypes[extname] || 'application/octet-stream';
+    const fallbackQuotes = [
+        {
+            text: "Don't stop 'til you get enough",
+            author: "Michael Jackson",
+            song: "Don't Stop 'Til You Get Enough",
+            album: "Off the Wall",
+            year: 1979
+        },
+        {
+            text: "Billie Jean is not my lover",
+            author: "Michael Jackson",
+            song: "Billie Jean",
+            album: "Thriller",
+            year: 1982
+        },
+        {
+            text: "I'm starting with the man in the mirror",
+            author: "Michael Jackson",
+            song: "Man in the Mirror",
+            album: "Bad",
+            year: 1987
+        },
+        {
+            text: "You are not alone, I am here with you",
+            author: "Michael Jackson",
+            song: "You Are Not Alone",
+            album: "HIStory: Past, Present and Future, Book I",
+            year: 1995
+        },
+        {
+            text: "We are the world, we are the children",
+            author: "Michael Jackson",
+            song: "We Are the World",
+            album: "We Are the World",
+            year: 1985
+        }
+    ];
     
-    // Read and serve the file
-    fs.readFile(filePath, (err, content) => {
-        if (err) {
-            if (err.code === 'ENOENT') {
-                // File not found
-                res.writeHead(404, { 'Content-Type': 'text/html' });
-                res.end('<h1>404 - File Not Found</h1>');
-            } else {
-                // Server error
-                res.writeHead(500, { 'Content-Type': 'text/html' });
-                res.end('<h1>500 - Internal Server Error</h1>');
-            }
-        } else {
-            // Success
-            res.writeHead(200, { 'Content-Type': contentType });
-            res.end(content, 'utf-8');
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedQuotes = fallbackQuotes.slice(startIndex, endIndex);
+    
+    res.json({
+        success: true,
+        data: paginatedQuotes,
+        pagination: {
+            page,
+            limit,
+            total: fallbackQuotes.length,
+            pages: Math.ceil(fallbackQuotes.length / limit)
         }
     });
 });
 
+app.get('/api/quotes/stats', (req, res) => {
+    res.json({
+        success: true,
+        data: {
+            totalQuotes: 10,
+            totalSongs: 10,
+            totalAlbums: 5,
+            sourceStats: [{ _id: 'fallback', count: 10 }],
+            yearStats: [
+                { _id: 1979, count: 1 },
+                { _id: 1982, count: 2 },
+                { _id: 1985, count: 1 },
+                { _id: 1987, count: 3 },
+                { _id: 1991, count: 2 },
+                { _id: 1995, count: 1 }
+            ]
+        }
+    });
+});
+
+// Serve the main HTML file for all routes (SPA)
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({
+        success: false,
+        message: 'Something went wrong!'
+    });
+});
+
 // Start server
-server.listen(PORT, () => {
+app.listen(PORT, () => {
     console.log(`🚀 Server running at http://localhost:${PORT}`);
     console.log(`📱 Open your browser and visit: http://localhost:${PORT}`);
+    console.log(`🔗 API available at: http://localhost:${PORT}/api/quotes`);
     console.log(`⏹️  Press Ctrl+C to stop the server`);
+    console.log(`💡 Running in fallback mode - MongoDB not required`);
 });
 
 // Handle graceful shutdown
 process.on('SIGINT', () => {
     console.log('\n👋 Shutting down server...');
-    server.close(() => {
-        console.log('✅ Server closed');
-        process.exit(0);
-    });
+    process.exit(0);
 }); 

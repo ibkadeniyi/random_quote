@@ -1,88 +1,7 @@
-// Quote Generator Frontend JavaScript
+// Quote Generator Frontend JavaScript - Updated for API Integration
 
-// Extended quotes array with more variety
-const quotes = [
-    {
-        text: "The only way to do great work is to love what you do.",
-        author: "Steve Jobs"
-    },
-    {
-        text: "Life is what happens when you're busy making other plans.",
-        author: "John Lennon"
-    },
-    {
-        text: "The future belongs to those who believe in the beauty of their dreams.",
-        author: "Eleanor Roosevelt"
-    },
-    {
-        text: "Success is not final, failure is not fatal: it is the courage to continue that counts.",
-        author: "Winston Churchill"
-    },
-    {
-        text: "The only limit to our realization of tomorrow is our doubts of today.",
-        author: "Franklin D. Roosevelt"
-    },
-    {
-        text: "It does not matter how slowly you go as long as you do not stop.",
-        author: "Confucius"
-    },
-    {
-        text: "The journey of a thousand miles begins with one step.",
-        author: "Lao Tzu"
-    },
-    {
-        text: "What you get by achieving your goals is not as important as what you become by achieving your goals.",
-        author: "Zig Ziglar"
-    },
-    {
-        text: "The mind is everything. What you think you become.",
-        author: "Buddha"
-    },
-    {
-        text: "The best way to predict the future is to create it.",
-        author: "Peter Drucker"
-    },
-    {
-        text: "Believe you can and you're halfway there.",
-        author: "Theodore Roosevelt"
-    },
-    {
-        text: "Don't watch the clock; do what it does. Keep going.",
-        author: "Sam Levenson"
-    },
-    {
-        text: "The only person you are destined to become is the person you decide to be.",
-        author: "Ralph Waldo Emerson"
-    },
-    {
-        text: "Everything you've ever wanted is on the other side of fear.",
-        author: "George Addair"
-    },
-    {
-        text: "Success usually comes to those who are too busy to be looking for it.",
-        author: "Henry David Thoreau"
-    },
-    {
-        text: "The way to get started is to quit talking and begin doing.",
-        author: "Walt Disney"
-    },
-    {
-        text: "Your time is limited, don't waste it living someone else's life.",
-        author: "Steve Jobs"
-    },
-    {
-        text: "The greatest glory in living lies not in never falling, but in rising every time we fall.",
-        author: "Nelson Mandela"
-    },
-    {
-        text: "In the middle of difficulty lies opportunity.",
-        author: "Albert Einstein"
-    },
-    {
-        text: "The only impossible journey is the one you never begin.",
-        author: "Tony Robbins"
-    }
-];
+// API base URL
+const API_BASE_URL = '/api/quotes';
 
 // DOM elements
 const quoteText = document.getElementById('quote-text');
@@ -95,22 +14,135 @@ const notificationText = document.getElementById('notification-text');
 
 let currentQuote = null;
 
-// Generate random quote
-function generateQuote() {
-    const randomIndex = Math.floor(Math.random() * quotes.length);
-    const quote = quotes[randomIndex];
-    
-    // Add fade effect
-    quoteText.classList.add('fade');
-    
-    setTimeout(() => {
-        quoteText.textContent = `"${quote.text}"`;
-        quoteAuthor.innerHTML = `<span class="author-label">— ${quote.author}</span>`;
-        currentQuote = quote;
+// API functions
+async function fetchRandomQuote() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/random`);
+        const data = await response.json();
         
-        // Remove fade effect
-        quoteText.classList.remove('fade');
-    }, 300);
+        if (data.success) {
+            return data.data;
+        } else {
+            throw new Error(data.message || 'Failed to fetch quote');
+        }
+    } catch (error) {
+        console.error('Error fetching quote:', error);
+        throw error;
+    }
+}
+
+async function fetchQuotes(page = 1, limit = 10) {
+    try {
+        const response = await fetch(`${API_BASE_URL}?page=${page}&limit=${limit}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            return data.data;
+        } else {
+            throw new Error(data.message || 'Failed to fetch quotes');
+        }
+    } catch (error) {
+        console.error('Error fetching quotes:', error);
+        throw error;
+    }
+}
+
+async function searchQuotes(query) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/search?q=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            return data.data;
+        } else {
+            throw new Error(data.message || 'Failed to search quotes');
+        }
+    } catch (error) {
+        console.error('Error searching quotes:', error);
+        throw error;
+    }
+}
+
+async function fetchQuoteStats() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/stats`);
+        const data = await response.json();
+        
+        if (data.success) {
+            return data.data;
+        } else {
+            throw new Error(data.message || 'Failed to fetch stats');
+        }
+    } catch (error) {
+        console.error('Error fetching stats:', error);
+        throw error;
+    }
+}
+
+async function updateQuotePopularity(quoteId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/${quoteId}/popularity`, {
+            method: 'PATCH'
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            return data.data;
+        } else {
+            throw new Error(data.message || 'Failed to update popularity');
+        }
+    } catch (error) {
+        console.error('Error updating popularity:', error);
+        throw error;
+    }
+}
+
+// Generate random quote
+async function generateQuote() {
+    try {
+        setButtonLoading(generateBtn, true);
+        
+        // Add fade effect
+        quoteText.classList.add('fade');
+        
+        setTimeout(async () => {
+            try {
+                const quote = await fetchRandomQuote();
+                
+                quoteText.textContent = `"${quote.text}"`;
+                quoteAuthor.innerHTML = `
+                    <span class="author-label">— ${quote.author}</span>
+                    <br>
+                    <small class="song-info">From: ${quote.song} (${quote.album || 'Unknown Album'})</small>
+                `;
+                currentQuote = quote;
+                
+                // Update popularity
+                if (quote._id) {
+                    updateQuotePopularity(quote._id).catch(console.error);
+                }
+                
+                // Remove fade effect
+                quoteText.classList.remove('fade');
+                
+            } catch (error) {
+                console.error('Error generating quote:', error);
+                showNotification('Failed to generate quote. Please try again.', 'error');
+                
+                // Show fallback message
+                quoteText.textContent = 'Click the button below to generate a random quote';
+                quoteAuthor.innerHTML = '<span class="author-label">Author</span>';
+                currentQuote = null;
+            } finally {
+                setButtonLoading(generateBtn, false);
+            }
+        }, 300);
+        
+    } catch (error) {
+        console.error('Error in generateQuote:', error);
+        setButtonLoading(generateBtn, false);
+        showNotification('Failed to generate quote. Please try again.', 'error');
+    }
 }
 
 // Copy quote to clipboard
@@ -120,7 +152,7 @@ async function copyQuote() {
         return;
     }
     
-    const textToCopy = `"${currentQuote.text}" — ${currentQuote.author}`;
+    const textToCopy = `"${currentQuote.text}" — ${currentQuote.author} (${currentQuote.song})`;
     
     try {
         await navigator.clipboard.writeText(textToCopy);
@@ -144,11 +176,11 @@ function shareQuote() {
         return;
     }
     
-    const textToShare = `"${currentQuote.text}" — ${currentQuote.author}`;
+    const textToShare = `"${currentQuote.text}" — ${currentQuote.author} (${currentQuote.song})`;
     
     if (navigator.share) {
         navigator.share({
-            title: 'Random Quote Generator',
+            title: 'Michael Jackson Quote',
             text: textToShare,
             url: window.location.href
         }).catch(err => {
@@ -182,17 +214,17 @@ function setButtonLoading(button, isLoading) {
     }
 }
 
-// Event listeners
-generateBtn.addEventListener('click', () => {
-    setButtonLoading(generateBtn, true);
-    
-    // Simulate a small delay for better UX
-    setTimeout(() => {
-        generateQuote();
-        setButtonLoading(generateBtn, false);
-    }, 500);
-});
+// Update page title and description for Michael Jackson theme
+function updatePageTheme() {
+    document.title = 'Michael Jackson Quote Generator';
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+        metaDescription.content = 'Discover inspiring quotes from Michael Jackson lyrics and songs';
+    }
+}
 
+// Event listeners
+generateBtn.addEventListener('click', generateQuote);
 copyBtn.addEventListener('click', copyQuote);
 shareBtn.addEventListener('click', shareQuote);
 
@@ -205,9 +237,16 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Auto-generate first quote on page load
-window.addEventListener('load', () => {
-    setTimeout(() => {
-        generateQuote();
+window.addEventListener('load', async () => {
+    updatePageTheme();
+    
+    setTimeout(async () => {
+        try {
+            await generateQuote();
+        } catch (error) {
+            console.error('Error on initial quote generation:', error);
+            showNotification('Welcome! Click generate to get started.', 'info');
+        }
     }, 1000);
 });
 
